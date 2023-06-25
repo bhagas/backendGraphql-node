@@ -1,30 +1,46 @@
-'use strict';
+const  express = require('express');
+const { ApolloServer } = require('@apollo/server');
+const { expressMiddleware } = require('@apollo/server/express4');
+const { ApolloServerPluginDrainHttpServer } = require('@apollo/server/plugin/drainHttpServer');
 
-const express = require('express'); 
 const path = require('path');
-// eslint-disable-next-line import/no-unresolved
-const app = express();
+  const http = require('http');
+  const cors = require('cors');
+  const bodyParser = require('body-parser');
+  const app = express()
+const httpServer = http.createServer(app);
+  app.use(express.static(path.join(path.resolve(), 'dist')));
+// // parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
 
-// Middlewares
-var morgan = require('morgan')
-app.use(morgan('combined'))
+// // parse application/json
+app.use(bodyParser.json());
+app.get('/',(req,res)=>{
+    res.send('hallo')
+})
 
-// Default Routes - Static file + index.html handler
-app.use(express.static(path.join(path.resolve(), 'dist')));
-app.get('/', function(req, res) {
-  res.sendFile(path.join(process.cwd(), 'dist/index.html'));
-});
+const startServer = async function() {
 
-app.get('/api/version', function(req, res) {
-  res.json({
-    'NodeJS Version': process.version,
-    'Cloud Environment': process.env.CLOUD_ENV
-  })
-});
+const { application } = require('../config/graphqlmerge.js');
+  const schema = application.createSchemaForApollo();
+  const server = new ApolloServer({
+    schema,
+    cache: 'bounded',
+    plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer })
+    ],
+  });
+  await server.start();
+  app.use(
+    '/gpl',
+    cors(),
+    expressMiddleware(server),
+  );
 
-// Error handler
-app.use((err, req, res, next) => {
-  res.status(500).send('Internal Serverless Error: ' + err);
-});
+ };
 
-module.exports = app;
+ startServer()
+ app.use((err, req, res, next)=>{
+  res.json({pesan:'error', error: err})
+})
+ module.exports= httpServer;

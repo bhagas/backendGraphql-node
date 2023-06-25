@@ -1,4 +1,4 @@
-name: nodejs16_sample
+name: transition_be
 description: App Description
 ignoreFiles: .git node_modules
 modules:
