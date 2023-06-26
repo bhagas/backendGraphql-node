@@ -3,8 +3,9 @@ import userModel from './model.js';
 import gql from 'graphql-tag';
 import { v4 as uuidv4 } from 'uuid';
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs';
-import fs from 'fs';
-import enkrip from '../../../helper/bcrypt.js'
+import saveFile from '../../helper/file.js';
+import enkrip from '../../helper/bcrypt.js'
+
 export const typeDefs=
   gql`
   scalar Upload
@@ -77,16 +78,8 @@ export const resolvers= {
   Mutation:{
     createUser: async (_, {image, input})=>{
       try {
-        const { createReadStream, filename, mimetype, encoding } = await image;
+       let file = await saveFile(await image);
 
-        // Invoking the `createReadStream` will return a Readable Stream.
-        // See https://nodejs.org/api/stream.html#stream_readable_streams
-        const stream = createReadStream();
-  
-        // This is purely for demonstration purposes and will overwrite the
-        // local-file-output.txt in the current working directory on EACH upload.
-        const out = fs.createWriteStream('./assets/local-file-output.jpeg');
-        console.log(out);
         input.id=uuidv4();
         input.password=await enkrip.hash(input.password)
        await userModel.create(input)
@@ -98,7 +91,7 @@ export const resolvers= {
         return {
           status: '500',
           pesan: 'gagal',
-          error
+          error: JSON.stringify(error)
       }
       }
      
