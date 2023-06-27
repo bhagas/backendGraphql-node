@@ -3,7 +3,7 @@ const { QueryTypes } = require('sequelize');
 const userModel = require('./model.js');
 const gql = require('graphql-tag');
 const uuid = require('uuid');
-const jwt = require('../../helper/jwt.js')
+const jwt = require('../../helper/jwt.js');
 const typeDefs=
   gql`
   extend type Query {
@@ -11,7 +11,7 @@ const typeDefs=
     Deskripsi untuk user
     berisi tentang profil user
     """
-      users: [User]
+      users: usersResult
       "Query untuk user by id"
       user(id: ID!, name: String): User
   }
@@ -22,7 +22,11 @@ const typeDefs=
   }
 
 
-
+type usersResult{
+  data:[User],
+  message:String,
+  status:Int
+}
   
   input UserInput {
     name: String,
@@ -61,14 +65,24 @@ const typeDefs=
 
 const resolvers= {
   Query: {
-    users: async () => {
+    users: async (obj, args, context, info) => {
+
+      if(!context.user){
+        return {
+          data:[],
+          status: '403',
+          message: 'Unauthorized'
+      }
+      }else{
         let dt = await db.query('select * from users');
         //bisa array return nya
-        return dt[0];
+        return {data: dt[0], status:200, message:'Success'};
+      }
+       
     },
     user: async (obj, args, context, info) =>
         {
-            console.log(args);
+           
             let dt = await db.query(`select * from Users where id= '${args.id}'`);
             //harus object return nya
             return dt[0][0];

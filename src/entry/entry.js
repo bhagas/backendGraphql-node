@@ -8,6 +8,7 @@ const path = require('path');
   const cors = require('cors');
   const bodyParser = require('body-parser');
   const app = express()
+  const jwt = require('../helper/jwt')
 const httpServer = http.createServer(app);
   app.use(express.static(path.join(path.resolve(), 'dist')));
 // // parse application/x-www-form-urlencoded
@@ -34,7 +35,24 @@ const schema  = require('../config/graphqlmerge.js');
   app.use(
     '/gql',
     cors(),
-    expressMiddleware(server),
+    expressMiddleware(server,
+      {
+        context: async ({ req }) => { 
+          try {
+            let user ='';
+            let token = (req.headers.authorization)?req.headers.authorization:'';
+            if(token){
+              let dt = token.split(" ");
+              user=await jwt.verify(dt[1]);
+            }
+            return {user};
+          } catch (error) {
+            return {user:''};
+          }
+        
+
+      }
+    }),
   );
 
  };
