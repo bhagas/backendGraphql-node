@@ -1,5 +1,5 @@
-const db = require('../../config/koneksi.js')
-const { createModule, gql } = require('graphql-modules');
+const db = require('../../config/koneksi.js');
+const gql = require('graphql-tag');
 const typeDefs=
   gql`
   "Query untuk user"
@@ -67,10 +67,6 @@ const resolvers= {
     }
   }
 }
-const UserModule = createModule({
-  id: 'user-module',
-  typeDefs: [typeDefs],
-  resolvers: [resolvers]
-});
 
-module.exports = UserModule
+
+module.exports = {typeDefs, resolvers}

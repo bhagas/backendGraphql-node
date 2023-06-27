@@ -2,7 +2,7 @@ const  express = require('express');
 const { ApolloServer } = require('@apollo/server');
 const { expressMiddleware } = require('@apollo/server/express4');
 const { ApolloServerPluginDrainHttpServer } = require('@apollo/server/plugin/drainHttpServer');
-
+const {buildSubgraphSchema} = require('@apollo/subgraph');
 const path = require('path');
   const http = require('http');
   const cors = require('cors');
@@ -21,10 +21,10 @@ app.get('/',(req,res)=>{
 
 const startServer = async function() {
 
-const { application } = require('../config/graphqlmerge.js');
-  const schema = application.createSchemaForApollo();
+const schema  = require('../config/graphqlmerge.js');
+
   const server = new ApolloServer({
-    schema,
+    schema:buildSubgraphSchema(schema),
     cache: 'bounded',
     plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer })
