@@ -32,7 +32,7 @@ const schema  = require('../config/graphqlmerge.js');
   });
   await server.start();
   app.use(
-    '/gpl',
+    '/gql',
     cors(),
     expressMiddleware(server),
   );

@@ -7,14 +7,10 @@ const User = koneksi.define('users', {
       type: DataTypes.STRING,
         primaryKey: true
       },
-    username: {
+    name: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    password: {
-        type: DataTypes.STRING
-        // allowNull defaults to true
-      },
     email:{
         type: DataTypes.STRING
     }

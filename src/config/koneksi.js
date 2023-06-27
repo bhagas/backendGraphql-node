@@ -11,7 +11,13 @@ const sequelize = new Sequelize(process.env.DATABASE_NAME, process.env.DATABASE_
       acquire: 30000,
       idle: 10000,
   },
-   logging:false
+   logging:false,
+   dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
+    },
+  }
   });
 
 module.exports = sequelize;
