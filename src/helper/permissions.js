@@ -1,7 +1,13 @@
 const { not,and, or, rule, shield } = require("graphql-shield");
 
+
 const isAuthenticated = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
-    return ctx.user !== null
+    if(ctx.user !== null){
+        return true;
+    } else{
+        return new Error('Not Authenticated');
+    }
+   
   })
    
   const isAdmin = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {

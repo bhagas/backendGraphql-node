@@ -1,17 +1,17 @@
 const {DataTypes } = require('sequelize');
 const koneksi = require('../../config/koneksi.js');
 
-const User = koneksi.define('users', {
+const Role = koneksi.define('roles', {
     // Model attributes are defined here
     id: {
       type: DataTypes.STRING,
         primaryKey: true
       },
-    name: {
+    role_name: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    email:{
+    code:{
         type: DataTypes.STRING
     }
   }, {
@@ -19,4 +19,4 @@ const User = koneksi.define('users', {
     freezeTableName: true,
     paranoid:true
   });
-module.exports = User;
+module.exports = Role;

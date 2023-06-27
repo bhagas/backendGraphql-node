@@ -38,7 +38,7 @@ const schema  = require('../config/graphqlmerge.js');
       {
         context: async ({ req }) => { 
           try {
-            let user ='';
+            let user =null;
             let token = (req.headers.authorization)?req.headers.authorization:'';
             if(token){
               let dt = token.split(" ");
@@ -46,7 +46,7 @@ const schema  = require('../config/graphqlmerge.js');
             }
             return {user};
           } catch (error) {
-            return {user:''};
+            return {user:null};
           }
         
 
