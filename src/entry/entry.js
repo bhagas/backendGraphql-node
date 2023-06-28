@@ -44,15 +44,15 @@ const schema  = require('../config/graphqlmerge.js');
          
             if(token){
               let dt = token.split(" ");
-           
-              user=await jwt.verify(dt[1]);
-          
-             
+              if(dt.length>1){
+            
+                user=await jwt.verify(dt[1]);
+              } 
             }
            
             return {user};
           } catch (error) {
-            console.log(error);
+         
             return {user:null};
           }
         
