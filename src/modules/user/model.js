@@ -1,4 +1,4 @@
-const {DataTypes } = require('sequelize');
+const {DataTypes, ENUM } = require('sequelize');
 const koneksi = require('../../config/koneksi.js');
 
 const User = koneksi.define('users', {
@@ -8,11 +8,20 @@ const User = koneksi.define('users', {
         primaryKey: true
       },
     name: {
-      type: DataTypes.STRING,
-      allowNull: false
+      type: DataTypes.STRING
     },
     email:{
         type: DataTypes.STRING
+    },
+    confirmation_code:{
+      type: DataTypes.STRING
+    },
+    email:{
+      type: DataTypes.STRING
+    },
+    status:{
+      type: ENUM("pending", "active", "disabled"),
+      defaultValue: "pending",
     }
   }, {
     // Other model options go here

@@ -101,6 +101,7 @@ Mutation:{
    
       input.id=uuid.v4()
       // input.password=await enkrip.hash(input.password)
+      input.confirmation_code = await jwt.generate(input.id, '1h');
      await userModel.create(input)
         return {
             status: '200',
@@ -124,7 +125,7 @@ Mutation:{
      if(dt.length){
       dt[0].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [dt[0].id],type: QueryTypes.SELECT });
    
-      let token = await jwt.generate(dt[0])
+      let token = await jwt.generate(dt[0], '24h')
         return {
             status: '200',
             message: 'Success',

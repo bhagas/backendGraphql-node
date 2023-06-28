@@ -1,9 +1,9 @@
 var jwt = require('jsonwebtoken');
 let key = process.env.JWT_KEY
 class Jewete{
- static  generate(data) {
+ static  generate(data, expiresIn) {
     return new Promise((resolve, reject) => {
-        jwt.sign(data, key, function(err, token) {
+        jwt.sign(data, key, { expiresIn }, function(err, token) {
             if(err){
                 reject(err)
             }else{

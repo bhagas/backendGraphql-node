@@ -8,18 +8,28 @@ const transporter = nodemailer.createTransport({
     }
   });
   
-  const mailOptions = {
-    from: 'tump.store@gmail.com',
-    to: 'tatawedha@gmail.com',
-    subject: 'Subject',
-    text: 'Email content'
-  };
+ 
   
-  transporter.sendMail(mailOptions, function(error, info){
-    if (error) {
-   console.log(error);
-    } else {
-      console.log('Email sent: ' + info.response);
-      // do something useful
-    }
-  });
+  function sendMail(to, subject, html) {
+    return new Promise((resolve, reject) => {
+      const mailOptions = {
+        from: 'NoReply<tump.store@gmail.com>',
+        to,
+        subject,
+        html
+      };
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+       
+       reject(error)
+        } else {
+          console.log('Email sent: ' + info.response);
+          resolve()
+          // do something useful
+        }
+      });
+    })
+    
+  }
+  
+  module.exports = sendMail;
