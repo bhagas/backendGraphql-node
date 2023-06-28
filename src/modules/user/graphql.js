@@ -5,6 +5,7 @@ const rolePoolModel = require('../rolePool/model.js');
 const gql = require('graphql-tag');
 const uuid = require('uuid');
 const jwt = require('../../helper/jwt.js');
+const mail = require('../../helper/mail');
 const typeDefs=
   gql`
   extend type Query {
@@ -20,6 +21,7 @@ const typeDefs=
     createUser(input: UserInput): Output
     updateUser(id: ID!, input: UserInput): Output
     login(input: LoginInput): OutputLogin
+    activation(token:String): Output
     setRole(idUser:String!, roles:[inputRole]): Output
   }
 
@@ -52,7 +54,8 @@ type usersResult{
      email: String,
      createdAt: String,
      updatedAt:String,
-     roles:[Role]
+     roles:[Role],
+     status:String
   }
   type OutputLogin{
     status:String,
@@ -101,7 +104,13 @@ Mutation:{
    
       input.id=uuid.v4()
       // input.password=await enkrip.hash(input.password)
-      input.confirmation_code = await jwt.generate(input.id, '1h');
+      input.confirmation_code = await jwt.generate({id: input.id}, '1h');
+      let html =`<h1>Invitation</h1>
+      <h2>Hello ${input.name}</h2>
+      <p>Transition has invited you, You can accept this invitation by clicking on the following link</p>
+      <a href=${process.env.FE_URI}confirm/${input.confirmation_code}> Click here</a>
+      </div>`
+      mail(input.email, "Transition has invited you", html)
      await userModel.create(input)
         return {
             status: '200',
@@ -119,25 +128,24 @@ Mutation:{
   },
   login: async (_, {input})=>{
     try {
-
-      // input.password=await enkrip.hash(input.password)
+      
       let dt = await db.query(`select * from users where email= $1`, { bind: [input.email],type: QueryTypes.SELECT });
      if(dt.length){
       dt[0].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [dt[0].id],type: QueryTypes.SELECT });
    
-      let token = await jwt.generate(dt[0], '24h')
-        return {
-            status: '200',
-            message: 'Success',
-            token,
-            user: dt[0]
+      let token = await jwt.generate({id: dt[0].id}, '24h')
+          return {
+              status: '200',
+              message: 'Success',
+              token,
+              user: dt[0]
+          }
+        }else{
+          return {
+            status: '403',
+            message: 'Email is not registered',
+          
         }
-     }else{
-      return {
-        status: '403',
-        message: 'Email is not registered',
-      
-    }
      }
      
     } catch (error) {
@@ -145,6 +153,47 @@ Mutation:{
       return {
         status: '500',
         message: 'gagal',
+        error
+    }
+    }
+   
+  },
+  activation: async (_, {token})=>{
+    try {
+      let user=await jwt.verify(token);
+      if(user){
+        let dt = await db.query(`select * from users where confirmation_code= $1`, { bind: [token],type: QueryTypes.SELECT });
+        
+        if(dt.length){
+         dt[0].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [dt[0].id],type: QueryTypes.SELECT });
+         await userModel.update(
+          {status:'active'},
+           { where: { id:dt[0].id } }
+         )
+           return {
+               status: '200',
+               message: 'Success',
+               user: dt[0]
+           }
+        }else{
+         return {
+           status: '403',
+           message: 'User is not registered',
+       }
+        }
+      }else{
+        return {
+          status: '500',
+          message: 'Token Expired',
+      }
+      }
+   
+     
+    } catch (error) {
+      console.log(error);
+      return {
+        status: '500',
+        message: 'Internal Server Error',
         error
     }
     }

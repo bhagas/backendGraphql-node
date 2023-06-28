@@ -20,7 +20,7 @@ const User = koneksi.define('users', {
       type: DataTypes.STRING
     },
     status:{
-      type: ENUM("pending", "active", "disabled"),
+      type: ENUM("pending", "active", "inactive"),
       defaultValue: "pending",
     }
   }, {
