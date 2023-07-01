@@ -23,6 +23,7 @@ const typeDefs=
     login(input: LoginInput): OutputLogin
     activation(token:String): Output
     setRole(idUser:String!, roles:[inputRole]): Output
+    removeUser(idUser:String!): Output
   }
 
 
@@ -34,7 +35,8 @@ type usersResult{
   
   input UserInput {
     name: String,
-    email: String
+    email: String!,
+    status: String
   }
   input LoginInput {
     email: String
@@ -207,9 +209,20 @@ Mutation:{
        )
       return {
           status: '200',
-          message: 'Berhasil Update'
+          message: 'Updated'
       }
   },
+
+  removeUser: async (_, {idUser})=>{
+    // console.log(idUser, input);
+    await userModel.destroy(
+       { where: { id:idUser } }
+     )
+    return {
+        status: '200',
+        message: 'Removed'
+    }
+},
   setRole: async (_, {idUser, roles})=>{
     try {
  
@@ -230,7 +243,7 @@ Mutation:{
        await rolePoolModel.bulkCreate(roles, {transaction:t})
           return {
             status: '200',
-            message: 'Berhasil Update'
+            message: 'Updated'
         }
       })
 

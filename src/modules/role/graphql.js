@@ -14,6 +14,7 @@ const typeDefs=
   extend type Mutation {
     createRole(inputRole: RoleInput): Output
     updateRole(id: ID!, input: RoleInput): Output
+    removeRole(id: ID!): Output
   }
 
 
@@ -84,9 +85,20 @@ Mutation:{
       )
       return {
           status: '200',
-          message: 'Berhasil Update'
+          message: 'Updated'
       }
-  }
+  },
+
+  removeRole: async (_, {id})=>{
+
+    await roleModel.destory(
+      { where: { id } }
+    )
+    return {
+        status: '200',
+        message: 'Removed'
+    }
+}
 }
 }
 
