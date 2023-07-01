@@ -26,6 +26,7 @@ const User = koneksi.define('users', {
   }, {
     // Other model options go here
     freezeTableName: true,
-    paranoid:true
+    paranoid:true,
+    deletedAt: 'deleted'
   });
 module.exports = User;

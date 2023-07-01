@@ -17,6 +17,7 @@ const Role = koneksi.define('roles', {
   }, {
     // Other model options go here
     freezeTableName: true,
-    paranoid:true
+    paranoid:true,
+    deletedAt: 'deleted'
   });
 module.exports = Role;
