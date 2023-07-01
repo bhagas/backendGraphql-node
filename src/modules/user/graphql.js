@@ -19,7 +19,7 @@ const typeDefs=
   }
   extend type Mutation {
     createUser(input: UserInput): Output
-    updateUser(id: ID!, input: UserInput): Output
+    updateUser(idUser: ID!, input: UserInputEdit): Output
     login(input: LoginInput): OutputLogin
     activation(token:String): Output
     setRole(idUser:String!, roles:[inputRole]): Output
@@ -36,6 +36,12 @@ type usersResult{
   input UserInput {
     name: String,
     email: String!,
+    status: String
+  }
+
+  input UserInputEdit {
+    name: String,
+    email: String,
     status: String
   }
   input LoginInput {
@@ -110,7 +116,7 @@ Mutation:{
       let html =`<h1>Invitation</h1>
       <h2>Hello ${input.name}</h2>
       <p>Transition has invited you, You can accept this invitation by clicking on the following link</p>
-      <a href=${process.env.FE_URI}confirm/${input.confirmation_code}> Click here</a>
+      <a href=${process.env.FE_URI}confirm?cc=${input.confirmation_code}> Click here</a>
       </div>`
       mail(input.email, "Transition has invited you", html)
      await userModel.create(input)
