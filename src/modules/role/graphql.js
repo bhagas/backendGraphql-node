@@ -91,13 +91,21 @@ Mutation:{
 
   removeRole: async (_, {id})=>{
 
-    await roleModel.destory(
-      { where: { id } }
-    )
-    return {
-        status: '200',
-        message: 'Removed'
+    try {
+      await roleModel.destroy(
+        { where: { id } }
+      )
+     return {
+         status: '200',
+         message: 'Removed'
+     }
+    } catch (error) {
+      return {
+        status: '500',
+        message: 'Internal Server Error',
+        error:JSON.stringify(error)
     }
+   } 
 }
 }
 }

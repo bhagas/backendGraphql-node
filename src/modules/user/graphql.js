@@ -221,14 +221,24 @@ Mutation:{
 
   removeUser: async (_, {idUser})=>{
     // console.log(idUser, input);
-    await userModel.destroy(
-       { where: { id:idUser } }
-     )
-    return {
-        status: '200',
-        message: 'Removed'
+    try {
+      await userModel.destroy(
+        { where: { id:idUser } }
+      )
+     return {
+         status: '200',
+         message: 'Removed'
+     }
+    } catch (error) {
+      return {
+        status: '500',
+        message: 'Internal Server Error',
+        error:JSON.stringify(error)
     }
-},
+   } 
+    },
+    
+
   setRole: async (_, {idUser, roles})=>{
     try {
  
