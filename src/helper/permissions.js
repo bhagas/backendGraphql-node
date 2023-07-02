@@ -1,6 +1,7 @@
 const { chain,not,and, or, rule, shield } = require("graphql-shield");
 const db = require('../config/koneksi');
 const { QueryTypes } = require('sequelize');
+const _ = require("lodash");
 
 const isAuthenticated = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
 
@@ -35,18 +36,49 @@ const isActive = rule({ cache: 'contextual' })(async (parent, args, ctx, info) =
 })
 
    
-  const isAdmin = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
-    return ctx.user.role === 'admin'
+  const isSuperAdmin = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
+    
+    return _.some(ctx.user.roles, ['code', 'A-1']);
   })
    
-  const isEditor = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
-    return ctx.user.role === 'editor'
+  const isSalesManager = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
+    return _.some(ctx.user.roles, ['code', 'A-2']);
   })
    
+  const isServiceManager = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
+    return _.some(ctx.user.roles, ['code', 'A-3']);
+  })
+  const isOperationsManager = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
+    return _.some(ctx.user.roles, ['code', 'A-4']);
+  })
+  const isWarehouseManager = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
+    return _.some(ctx.user.roles, ['code', 'A-5']);
+  })
+  const isExecutives = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
+    return _.some(ctx.user.roles, ['code', 'A-6']);
+  })
+  const isFieldServices = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
+    return _.some(ctx.user.roles, ['code', 'A-7']);
+  })
+  const isSalesReps = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
+    return _.some(ctx.user.roles, ['code', 'A-8']);
+  })
   // Permissions
   const permissions = shield({
     Query: {
-      users: chain(isAuthenticated, isActive),
+      users: chain(isAuthenticated, isActive,isSuperAdmin),
+      user:chain(isAuthenticated, isActive,isSuperAdmin),
+      role:chain(isAuthenticated, isActive,isSuperAdmin),
+      roles:chain(isAuthenticated, isActive,isSuperAdmin)
+    },
+    Mutation:{
+      createRole:chain(isAuthenticated, isActive, isSuperAdmin),
+      createUser:chain(isAuthenticated, isActive, isSuperAdmin),
+      removeRole:chain(isAuthenticated, isActive,isSuperAdmin),
+      removeUser:chain(isAuthenticated, isActive,isSuperAdmin),
+      setRole:chain(isAuthenticated, isActive,isSuperAdmin),
+      updateRole:chain(isAuthenticated, isActive,isSuperAdmin),
+      updateUser:chain(isAuthenticated, isActive,isSuperAdmin)
     }
   })
 
