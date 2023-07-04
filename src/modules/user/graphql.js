@@ -84,7 +84,7 @@ const resolvers= {
   Query: {
     users: async (obj, args, context, info) => {
       try {
-        let dt = await db.query('select * from users where deleted is null',{type: QueryTypes.SELECT});
+        let dt = await db.query('select * from users where deleted is null order by "createdAt" ASC',{type: QueryTypes.SELECT});
    
         for (let i = 0; i < dt.length; i++) {
           dt[i].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [dt[i].id],type: QueryTypes.SELECT });

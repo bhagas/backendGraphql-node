@@ -43,7 +43,7 @@ const resolvers= {
   Query: {
     roles: async (obj, args, context, info) => {
 
-      let dt = await db.query('select * from roles where deleted is null');
+      let dt = await db.query('select * from roles where deleted is null order by "createdAt" ASC');
       //bisa array return nya
       return {data: dt[0], status:200, message:'Success'};
        
