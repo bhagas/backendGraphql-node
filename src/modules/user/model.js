@@ -13,6 +13,9 @@ const User = koneksi.define('users', {
     email:{
         type: DataTypes.STRING
     },
+    password:{
+      type: DataTypes.STRING
+    },
     confirmation_code:{
       type: DataTypes.STRING
     },

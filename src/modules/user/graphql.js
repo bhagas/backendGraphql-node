@@ -6,6 +6,7 @@ const gql = require('graphql-tag');
 const uuid = require('uuid');
 const jwt = require('../../helper/jwt.js');
 const mail = require('../../helper/mail');
+const bcrypt = require('../../helper/bcrypt');
 const typeDefs=
   gql`
   extend type Query {
@@ -21,7 +22,7 @@ const typeDefs=
     createUser(input: UserInput): Output
     updateUser(idUser: ID!, input: UserInputEdit): Output
     login(input: LoginInput): OutputLogin
-    activation(token:String): Output
+    activation(token:String!, password:String!): Output
     setRole(idUser:String!, roles:[inputRole]): Output
     removeUser(idUser:String!): Output
   }
@@ -45,7 +46,8 @@ type usersResult{
     status: String
   }
   input LoginInput {
-    email: String
+    email: String!,
+    password:String!
   }
   input inputRole{
     roleId:String
@@ -139,20 +141,29 @@ Mutation:{
       
       let dt = await db.query(`select * from users where email= $1 and deleted is null`, { bind: [input.email],type: QueryTypes.SELECT });
      if(dt.length){
-      dt[0].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [dt[0].id],type: QueryTypes.SELECT });
+      let hasil = await bcrypt.compare(input.password, dt[0].password);
+ 
+      if(hasil){
+        dt[0].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [dt[0].id],type: QueryTypes.SELECT });
    
-      let token = await jwt.generate({id: dt[0].id}, '24h')
-          return {
-              status: '200',
-              message: 'Success',
-              token,
-              user: dt[0]
+        let token = await jwt.generate({id: dt[0].id}, '24h')
+            return {
+                status: '200',
+                message: 'Success',
+                token,
+                user: dt[0]
+            }
+      }else{
+        
+        return {
+          status: '403',
+          message: 'Wrong Password',
           }
-        }else{
-          return {
+        }
+      }else{
+        return {
             status: '403',
             message: 'Email is not registered',
-          
         }
      }
      
@@ -166,7 +177,7 @@ Mutation:{
     }
    
   },
-  activation: async (_, {token})=>{
+  activation: async (_, {token, password})=>{
     try {
       let user=await jwt.verify(token);
       if(user){
@@ -174,8 +185,11 @@ Mutation:{
         
         if(dt.length){
          dt[0].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [dt[0].id],type: QueryTypes.SELECT });
+       
+         let pass = await bcrypt.gen(password);
+     
          await userModel.update(
-          {status:'active'},
+          {status:'active', password:pass},
            { where: { id:dt[0].id } }
          )
            return {
